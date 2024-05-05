@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+#AUTH_USER_MODEL = 'modelDJango.CustomUser' solo aplica para modelos de usuario personalizados
 
 # Application definition
 
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'modelDJango',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

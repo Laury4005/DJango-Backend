@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Author Management</title>
+    <!-- Agrega el enlace al archivo CSS de Bootstrap -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Author Management</h1>
+
+        <!-- Lista de Autores -->
+        <h2 class="mb-3">List of Authors:</h2>
+        <ul id="author-list" class="list-group mb-3"></ul>
+
+        <!-- Botones para editar, registrar y eliminar autores -->
+        <div class="mb-3 d-flex justify-content-between">
+            <div>
+                <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#registerAuthorModal">Registrar Autor</button>
+                <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#editAuthorModal">Editar Autor</button>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#selectAuthorModal">Eliminar Autor</button>
+            </div>
+            <form action="{% url 'user_logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modals para editar, eliminar y registrar autores -->
+    <!-- Modal Editar Autor -->
+    <div class="modal fade" id="editAuthorModal" tabindex="-1" role="dialog" aria-labelledby="editAuthorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAuthorModalLabel">Editar Autor</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Formulario para editar un autor -->
+                    <form id="edit-author-form">
+                        <input type="hidden" id="edit-author-id" name="id">
+                        <div class="form-group">
+                            <label for="edit-name">Name:</label>
+                            <input type="text" class="form-control" id="edit-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-bio">Bio:</label>
+                            <textarea class="form-control" id="edit-bio" name="bio" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveEdit">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Seleccionar Autor -->
+    <div class="modal fade" id="selectAuthorModal" tabindex="-1" role="dialog" aria-labelledby="selectAuthorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="selectAuthorModalLabel">Eliminar Autor</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="authorSelect">Seleccione un autor:</label>
+                    <select class="form-control" id="authorSelect"></select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteSelected">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Autor -->
+    <div class="modal fade" id="registerAuthorModal" tabindex="-1" role="dialog" aria-labelledby="registerAuthorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerAuthorModalLabel">Registrar Autor</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Formulario para registrar un nuevo autor -->
+                    <form id="register-author-form">
+                        <div class="form-group">
+                            <label for="register-name">Nombre:</label>
+                            <input type="text" class="form-control" id="register-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-bio">Biografía:</label>
+                            <textarea class="form-control" id="register-bio" name="bio" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="registerAuthor">Registrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agrega el enlace al archivo JavaScript de Bootstrap y tu código personalizado -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Función para cargar la lista de autores al cargar la página
+            function loadAuthors() {
+                fetch('/api/authors/')
+                    .then(response => response.json())
+                    .then(data => {
+                        const authorList = document.getElementById('author-list');
+                        authorList.innerHTML = '';
+                        data.forEach(author => {
+                            const listItem = document.createElement('li');
+                            listItem.className = 'list-group-item';
+                            listItem.innerHTML = `<strong>${author.name}</strong>: ${author.bio}`;
+                            authorList.appendChild(listItem);
+                        });
+                    });
+            }
+
+            // Cargar la lista de autores al cargar la página
+            loadAuthors();
+
+            // Cargar la lista de autores en el select del modal de eliminación
+            function loadAuthorsSelect() {
+                fetch('/api/authors/')
+                    .then(response => response.json())
+                    .then(data => {
+                        const authorSelect = document.getElementById('authorSelect');
+                        authorSelect.innerHTML = '';
+                        data.forEach(author => {
+                            const option = document.createElement('option');
+                            option.value = author.id;
+                            option.textContent = author.name;
+                            authorSelect.appendChild(option);
+                        });
+                    });
+            }
+
+            // Manejar la eliminación de un autor seleccionado
+            $('#confirmDeleteSelected').click(function() {
+                const authorId = $('#authorSelect').val();
+                fetch(`/api/authors/${authorId}/`, {
+                    method: 'DELETE',
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Recargar la lista de autores después de eliminar
+                        loadAuthors();
+                        // Cerrar el modal de selección de autor
+                        $('#selectAuthorModal').modal('hide');
+                    } else {
+                        console.error('Error:', response.statusText);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+
+            // Cargar la lista de autores en el select al abrir el modal
+            $('#selectAuthorModal').on('show.bs.modal', function (event) {
+                loadAuthorsSelect();
+            });
+
+            // Manejar la creación de un nuevo autor
+            $('#registerAuthor').click(function() {
+                const formData = new FormData(document.getElementById('register-author-form'));
+                fetch('/api/authors/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Recargar la lista de autores después de crear uno nuevo
+                    loadAuthors();
+                    // Cerrar el modal de registro
+                    $('#registerAuthorModal').modal('hide');
+                    // Limpiar el formulario
+                    document.getElementById('register-author-form').reset();
+                })
+                .catch(error => console.error('Error:', error));
+            });
+
+            // Manejar la edición de un autor
+            $('#saveEdit').click(function() {
+                const formData = new FormData(document.getElementById('edit-author-form'));
+                const authorId = formData.get('id');
+                fetch(`/api/authors/${authorId}/`, {
+                    method: 'PUT',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Recargar la lista de autores después de editar
+                    loadAuthors();
+                    // Cerrar el modal de edición
+                    $('#editAuthorModal').modal('hide');
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+</body>
+</html>

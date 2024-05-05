@@ -1,5 +1,4 @@
 from django.db import models
-
 class Author(models.Model):
     name = models.CharField(max_length=50)
     bio = models.TextField()
@@ -32,6 +31,11 @@ class Post(models.Model):
 # >>> posts = Post.objects.all()
 # >>> for post in posts:
 # >>>     print(post.title)
+
+# Leer autores
+# authors = Author.objects.all()
+# for author in authors:
+# print(author.name)
 
 # Actualizar un post
 # >>> post = Post.objects.get(id=1)
