@@ -1,0 +1,19 @@
+version: '3' #Indica la versión de Docker Compose que estamos utilizando.
+
+services: #Define los servicios que componen tu aplicación.
+  web:
+    build: . #Indica que la imagen Docker para este servicio se construirá a partir del Dockerfile en el directorio actual (.).
+    command: python manage.py runserver 0.0.0.0:8000 #Especifica el comando que se ejecutará para iniciar el servidor de desarrollo de Django y hacer que escuche en todas las interfaces en el puerto 8000.
+    volumes: #Monta el directorio actual en el contenedor para permitir cambios en el código sin necesidad de reconstruir la imagen.
+      - .:/app
+    ports:
+      - "8000:8000" #Mapea el puerto 8000 del contenedor al puerto 8000 del host.
+    depends_on:
+      - db #Especifica que este servicio depende del servicio db (base de datos).
+
+  db:
+    image: python:3.8
+    container_name: sqlite-db #Define un nombre para el contenedor de la base de datos.
+    volumes: #Monta el archivo db.sqlite3 del directorio actual en el contenedor para persistir los datos de la base de datos.
+      - ./db.sqlite3:/app/db.sqlite3
+    command: tail -f /dev/null

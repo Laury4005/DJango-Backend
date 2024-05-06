@@ -8,6 +8,6 @@ urlpatterns = [
     path('accounts/login/', views.user_login, name='user_login'),
     path('logout/', views.user_logout, name='user_logout'),
     path('authors/', views.authors, name='authors'),
-    path('api/authors/', views.author_list),
-    path('api/authors/<int:pk>/', views.author_detail),
+    path('api/authors/', views.author_list, name="author_list"),
+    path('api/authors/<int:pk>/', views.author_detail, name='author_detail'),
 ]

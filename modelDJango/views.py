@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm
+from django.http import HttpResponseRedirect
 
 # def login(request):
 #     return render(request, 'login.html')
@@ -23,7 +24,8 @@ def user_login(request):
             if user is not None:
                 login(request, user)
                 # Redirige al usuario a la página deseada después del inicio de sesión exitoso
-                return redirect('authors')
+                #return redirect('authors')
+                return HttpResponseRedirect('/authors/') 
             else:
                 # El usuario no existe o las credenciales son incorrectas
                 # Aquí puedes mostrar un mensaje de error en el formulario
